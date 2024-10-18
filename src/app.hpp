@@ -1,9 +1,12 @@
+#include <cwchar>
 #include <vector>
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_enums.hpp>
 #include <vulkan/vulkan_handles.hpp>
 #include <vulkan/vulkan_structs.hpp>
-#define GLFW_INCLUDE_VULKAN
+
+#include "device_manager.hpp"
+
 #include <GLFW/glfw3.h>
 
 const std::vector<const char *> REQUIRED_EXTENSIONS = {
@@ -11,6 +14,9 @@ const std::vector<const char *> REQUIRED_EXTENSIONS = {
 };
 const std::vector<const char *> VALIDATION_LAYERS = {
 	"VK_LAYER_KHRONOS_validation"
+};
+const std::vector<const char *> GLFW_EXTENSIONS = {
+	vk::KHRSurfaceExtensionName,
 };
 
 const int WIDTH = 800;
@@ -32,8 +38,8 @@ private:
 	GLFWwindow *window;
 	vk::Instance instance;
 	vk::DebugUtilsMessengerEXT debug_messenger;
-	vk::PhysicalDevice physical_device;
-	vk::Device device;
+	DeviceManager device_manager;
+	vk::SurfaceKHR surface;
 
 	void init();
 	void loop();
@@ -42,9 +48,7 @@ private:
 	void init_glfw();
 	void init_instance();
 	void init_validation_layers();
-	void select_physical_device();
-	void init_logical_device();
+	void init_surface();
 
-	vk::DebugUtilsMessengerCreateInfoEXT get_messenger_create_info();
-	bool is_physical_device_viable(vk::PhysicalDevice phys_device);
+	vk::DebugUtilsMessengerCreateInfoEXT get_messenger_create_info() const;
 };
