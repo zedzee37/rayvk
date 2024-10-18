@@ -10,6 +10,7 @@ VulkanTest: src/main.cpp
 
 test: VulkanTest
 	./VulkanTest
+	make clean
 
 clean:
 	rm -f VulkanTest
