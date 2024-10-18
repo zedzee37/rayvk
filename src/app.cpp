@@ -20,8 +20,8 @@ void App::init() {
 	init_instance();
 	init_validation_layers();
 	init_surface();
-	//device_manager.select_physical_device(instance, REQUIRED_EXTENSIONS, surface);
-	//device_manager.init_logical_device(VALIDATION_LAYERS, REQUIRED_EXTENSIONS);
+	device_manager.select_physical_device(instance, REQUIRED_EXTENSIONS, surface);
+	device_manager.init_logical_device(VALIDATION_LAYERS, REQUIRED_EXTENSIONS);
 }
 
 void App::run() {

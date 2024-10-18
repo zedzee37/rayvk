@@ -42,7 +42,7 @@ QueueFamilyIndices DeviceManager::find_queue_indices(vk::PhysicalDevice phys_dev
 			indices.graphics_family = i;
 		}
 
-		vk::Bool32 present_supported = physical_device.getSurfaceSupportKHR(i, surface);
+		vk::Bool32 present_supported = phys_device.getSurfaceSupportKHR(i, surface);
 		if (present_supported) {
 			indices.present_family = i;
 		}
