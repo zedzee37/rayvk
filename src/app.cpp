@@ -1,16 +1,16 @@
 #include "app.hpp"
 #include <GLFW/glfw3.h>
-#include <vulkan/vulkan_core.h>
 #include <cstring>
 #include <iostream>
 #include <stdexcept>
+
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_funcs.hpp>
 #include <vulkan/vulkan_structs.hpp>
 
 App::~App() {
 	instance.destroySurfaceKHR(surface);
-	instance.destroy();
+	instance.destroyDebugUtilsMessengerEXT(debug_messenger, nullptr, dispatch_loader);
 
 	glfwDestroyWindow(window);
 }
@@ -34,8 +34,6 @@ void App::loop() {
 		glfwPollEvents();
 		draw();
 	}
-
-	vkDeviceWaitIdle(device_manager.device);
 }
 
 void App::draw() {
@@ -84,6 +82,12 @@ void App::init_instance() {
 	}
 
 	instance = vk::createInstance(instance_info);
+
+	vk::DynamicLoader dyna_loader;
+	auto vkGetInstanceProcAddr =
+			dyna_loader.getProcAddress<PFN_vkGetInstanceProcAddr>(
+					"vkGetInstanceProcAddr");
+	dispatch_loader.init(instance, vkGetInstanceProcAddr);
 }
 
 void App::init_validation_layers() {
@@ -91,11 +95,15 @@ void App::init_validation_layers() {
 		return;
 	}
 
-	vk::DebugUtilsMessengerCreateInfoEXT messenger_info = get_messenger_create_info();
+	vk::DispatchLoaderDynamic loader(instance, vkGetInstanceProcAddr);
+	vk::DebugUtilsMessengerCreateInfoEXT messenger_info;
 
-	if (instance.createDebugUtilsMessengerEXT(&messenger_info, nullptr, &debug_messenger) != vk::Result::eSuccess) {
-		throw std::runtime_error("failed to initialize debug messenger!");
-	}
+	messenger_info
+			.setMessageSeverity(vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose | vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning | vk::DebugUtilsMessageSeverityFlagBitsEXT::eError)
+			.setMessageType(vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance)
+			.setPfnUserCallback(App::debug_callback);
+
+	debug_messenger = instance.createDebugUtilsMessengerEXT(messenger_info, nullptr, dispatch_loader);
 }
 
 void App::init_surface() {
@@ -112,7 +120,18 @@ vk::DebugUtilsMessengerCreateInfoEXT App::get_messenger_create_info() const {
 
 	messenger_info
 			.setMessageSeverity(vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose | vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning | vk::DebugUtilsMessageSeverityFlagBitsEXT::eError)
-			.setMessageType(vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance);
+			.setMessageType(vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance)
+			.setPfnUserCallback(App::debug_callback);
 
 	return messenger_info;
+}
+
+VKAPI_ATTR VkBool32 VKAPI_CALL App::debug_callback(
+		VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+		VkDebugUtilsMessageTypeFlagsEXT messageType,
+		const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
+		void *pUserData) {
+	std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
+
+	return VK_FALSE;
 }

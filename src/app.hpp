@@ -1,5 +1,6 @@
 #include <cwchar>
 #include <vector>
+
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_enums.hpp>
 #include <vulkan/vulkan_handles.hpp>
@@ -10,7 +11,8 @@
 #include <GLFW/glfw3.h>
 
 const std::vector<const char *> REQUIRED_EXTENSIONS = {
-	vk::KHRSwapchainExtensionName
+	vk::KHRSwapchainExtensionName,
+	vk::EXTDebugUtilsExtensionName
 };
 const std::vector<const char *> VALIDATION_LAYERS = {
 	"VK_LAYER_KHRONOS_validation"
@@ -37,6 +39,7 @@ public:
 private:
 	GLFWwindow *window;
 	vk::Instance instance;
+	vk::DispatchLoaderDynamic dispatch_loader;
 	vk::DebugUtilsMessengerEXT debug_messenger;
 	DeviceManager device_manager;
 	vk::SurfaceKHR surface;
@@ -50,5 +53,10 @@ private:
 	void init_validation_layers();
 	void init_surface();
 
+	static VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback(
+			VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+			VkDebugUtilsMessageTypeFlagsEXT messageType,
+			const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
+			void *pUserData);
 	vk::DebugUtilsMessengerCreateInfoEXT get_messenger_create_info() const;
 };

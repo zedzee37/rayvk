@@ -1,9 +1,9 @@
 VULKAN_INCLUDE_PATH = /usr/include/vulkan
-stb_include_path = /usr/include/stb
-cflags = -std=c++17 -o2 -i$(vulkan_include_path) -i$(stb_include_path)
-LDFLAGS = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi
+STB_INCLUDE_PATH = /usr/include/stb
+CFLAGS = -std=c++17 -g -O0 -I$(VULKAN_INCLUDE_PATH) -I$(STB_INCLUDE_PATH)
+LDFLAGS = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi -DNDEBUG=1
 
-VulkanTest: src/main.cpp
+VulkanTest: src/*.cpp
 	g++ $(CFLAGS) -o VulkanTest src/*.cpp $(LDFLAGS)
 
 .PHONY: test clean
