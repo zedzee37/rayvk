@@ -8,9 +8,11 @@
 #include <vulkan/vulkan_funcs.hpp>
 #include <vulkan/vulkan_structs.hpp>
 
+VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
+
 App::~App() {
 	instance.destroySurfaceKHR(surface);
-	instance.destroyDebugUtilsMessengerEXT(debug_messenger, nullptr, dispatch_loader);
+	instance.destroyDebugUtilsMessengerEXT(debug_messenger, nullptr);
 
 	glfwDestroyWindow(window);
 }
@@ -65,7 +67,11 @@ void App::init_instance() {
 	uint32_t glfwExtensionCount = 0;
 	const char **glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
-	const std::vector<const char *> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+	std::vector<const char *> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+
+	if (enable_validation_layers) {
+		extensions.push_back(vk::EXTDebugUtilsExtensionName);
+	}
 
 	vk::InstanceCreateInfo instance_info;
 	instance_info
@@ -81,13 +87,15 @@ void App::init_instance() {
 		instance_info.setEnabledLayerCount(0);
 	}
 
-	instance = vk::createInstance(instance_info);
+	try {
+		instance = vk::createInstance(instance_info);
+	} catch (const vk::SystemError &err) {
+		std::cerr << "Failed to create Vulkan instance: " << err.what() << std::endl;
+		return;
+	}
 
-	vk::DynamicLoader dyna_loader;
-	auto vkGetInstanceProcAddr =
-			dyna_loader.getProcAddress<PFN_vkGetInstanceProcAddr>(
-					"vkGetInstanceProcAddr");
-	dispatch_loader.init(instance, vkGetInstanceProcAddr);
+	VULKAN_HPP_DEFAULT_DISPATCHER.init(vkGetInstanceProcAddr);
+	VULKAN_HPP_DEFAULT_DISPATCHER.init(instance);
 }
 
 void App::init_validation_layers() {
@@ -95,7 +103,6 @@ void App::init_validation_layers() {
 		return;
 	}
 
-	vk::DispatchLoaderDynamic loader(instance, vkGetInstanceProcAddr);
 	vk::DebugUtilsMessengerCreateInfoEXT messenger_info;
 
 	messenger_info
@@ -103,7 +110,9 @@ void App::init_validation_layers() {
 			.setMessageType(vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance)
 			.setPfnUserCallback(App::debug_callback);
 
-	debug_messenger = instance.createDebugUtilsMessengerEXT(messenger_info, nullptr, dispatch_loader);
+	if (instance.createDebugUtilsMessengerEXT(&messenger_info, nullptr, &debug_messenger) != vk::Result::eSuccess) {
+		throw std::runtime_error("failed to create debug messenger.");
+	}
 }
 
 void App::init_surface() {
