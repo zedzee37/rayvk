@@ -10,16 +10,20 @@ struct QueueFamilyIndices {
 	bool is_complete();
 };
 
+struct Queues {
+	vk::Queue graphics;
+	vk::Queue present;
+};
+
 class DeviceManager {
 public:
-	~DeviceManager();
-
 	vk::PhysicalDevice physical_device;
 	vk::Device device;
 	QueueFamilyIndices queue_indices;
 
+	void cleanup();
 	void select_physical_device(vk::Instance instance, std::vector<const char *> required_extensions, vk::SurfaceKHR surface);
-	void init_logical_device(std::vector<const char *> validation_layers, std::vector<const char *> required_extension);
+	Queues init_logical_device(vk::Instance instance, vk::PhysicalDeviceFeatures required_features, std::vector<const char *> validation_layers, std::vector<const char *> required_extension, bool use_validation_layers);
 
 private:
 	std::optional<QueueFamilyIndices> is_physical_device_viable(vk::PhysicalDevice device, std::vector<const char *> required_extensions, vk::SurfaceKHR surface) const;

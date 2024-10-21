@@ -9,6 +9,8 @@
 #include <vulkan/vulkan_structs.hpp>
 
 App::~App() {
+	device_manager.cleanup();
+
 	instance.destroySurfaceKHR(surface);
 	instance.destroyDebugUtilsMessengerEXT(debug_messenger, nullptr, loader);
 	instance.destroy();
@@ -21,8 +23,11 @@ void App::init() {
 	init_instance();
 	init_validation_layers();
 	init_surface();
+
+	vk::PhysicalDeviceFeatures features;
+	features.setSamplerAnisotropy(vk::True);
 	device_manager.select_physical_device(instance, REQUIRED_EXTENSIONS, surface);
-	device_manager.init_logical_device(VALIDATION_LAYERS, REQUIRED_EXTENSIONS);
+	device_manager.init_logical_device(instance, features, VALIDATION_LAYERS, REQUIRED_EXTENSIONS, enable_validation_layers);
 }
 
 void App::run() {
