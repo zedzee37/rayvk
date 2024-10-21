@@ -1,7 +1,6 @@
 #include <cwchar>
 #include <vector>
 
-#define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_enums.hpp>
 #include <vulkan/vulkan_handles.hpp>
@@ -36,6 +35,7 @@ public:
 private:
 	GLFWwindow *window;
 	vk::Instance instance;
+	vk::DispatchLoaderDynamic loader;
 	vk::DebugUtilsMessengerEXT debug_messenger;
 	DeviceManager device_manager;
 	vk::SurfaceKHR surface;

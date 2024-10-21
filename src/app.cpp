@@ -8,11 +8,10 @@
 #include <vulkan/vulkan_funcs.hpp>
 #include <vulkan/vulkan_structs.hpp>
 
-VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
-
 App::~App() {
 	instance.destroySurfaceKHR(surface);
-	instance.destroyDebugUtilsMessengerEXT(debug_messenger, nullptr);
+	instance.destroyDebugUtilsMessengerEXT(debug_messenger, nullptr, loader);
+	instance.destroy();
 
 	glfwDestroyWindow(window);
 }
@@ -83,8 +82,12 @@ void App::init_instance() {
 		instance_info
 				.setEnabledLayerCount(VALIDATION_LAYERS.size())
 				.setPEnabledLayerNames(VALIDATION_LAYERS);
+
+		vk::DebugUtilsMessengerCreateInfoEXT debug_info = get_messenger_create_info();
+		instance_info.pNext = &debug_info;
 	} else {
 		instance_info.setEnabledLayerCount(0);
+		instance_info.pNext = nullptr;
 	}
 
 	try {
@@ -94,8 +97,9 @@ void App::init_instance() {
 		return;
 	}
 
-	VULKAN_HPP_DEFAULT_DISPATCHER.init(vkGetInstanceProcAddr);
-	VULKAN_HPP_DEFAULT_DISPATCHER.init(instance);
+	vk::DynamicLoader dyna_loader;
+	auto get_func = dyna_loader.getProcAddress<PFN_vkGetInstanceProcAddr>("vkGetInstanceProcAddr");
+	loader.init(instance, get_func);
 }
 
 void App::init_validation_layers() {
@@ -110,7 +114,7 @@ void App::init_validation_layers() {
 			.setMessageType(vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance)
 			.setPfnUserCallback(App::debug_callback);
 
-	if (instance.createDebugUtilsMessengerEXT(&messenger_info, nullptr, &debug_messenger) != vk::Result::eSuccess) {
+	if (instance.createDebugUtilsMessengerEXT(&messenger_info, nullptr, &debug_messenger, loader) != vk::Result::eSuccess) {
 		throw std::runtime_error("failed to create debug messenger.");
 	}
 }
