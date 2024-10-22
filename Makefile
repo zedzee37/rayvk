@@ -3,8 +3,8 @@ STB_INCLUDE_PATH = /usr/include/stb
 CFLAGS = -std=c++17 -g -O0 -I$(VULKAN_INCLUDE_PATH) -I$(STB_INCLUDE_PATH)
 LDFLAGS = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi -DNDEBUG=1
 
-VulkanTest: src/*.cpp
-	g++ $(CFLAGS) -o VulkanTest src/*.cpp $(LDFLAGS)
+VulkanTest: src/*.c
+	g++ $(CFLAGS) -o VulkanTest src/*.c $(LDFLAGS)
 
 .PHONY: test clean
 
