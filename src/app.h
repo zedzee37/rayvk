@@ -5,6 +5,9 @@
 #define WIDTH 800
 #define HEIGHT 600
 
+extern const char *REQUIRED_EXTENSIONS[];
+extern const char *VALIDATION_LAYERS[];
+
 typedef struct App {
 	GLFWwindow *window;
 	VkInstance instance;

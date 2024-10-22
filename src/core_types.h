@@ -14,6 +14,8 @@ typedef enum RayErrorType {
 
 typedef struct RayError {
 	RayErrorType type;
-	char *errorMsg;
+	const char *errorMsg;
 	bool didError;
 } RayError;
+
+extern void setError(RayError *error, const char *msg);
