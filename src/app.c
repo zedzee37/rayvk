@@ -1,5 +1,7 @@
 #include "app.h"
 #include <GLFW/glfw3.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <vulkan/vulkan_core.h>
 
 const char *REQUIRED_EXTENSIONS[] = {
@@ -51,6 +53,8 @@ RayError appLoop(App *app) {
 }
 
 void appCleanup(App *app) {
+	vkDestroyInstance(app->instance, NULL);
+
 	glfwDestroyWindow(app->window);
 }
 
@@ -76,9 +80,14 @@ RayError appCreateInstance(VkInstance *instance) {
 	appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
 	appInfo.apiVersion = VK_API_VERSION_1_1;
 
-	VkInstanceCreateInfo instanceInfo;
+	uint32_t extensionCount;
+	const char **extensions = getRequiredExtensions(&extensionCount);
+
+	VkInstanceCreateInfo instanceInfo = {};
 	instanceInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	instanceInfo.pApplicationInfo = &appInfo;
+	instanceInfo.enabledExtensionCount = extensionCount;
+	instanceInfo.ppEnabledExtensionNames = extensions;
 
 	if (ENABLE_VALIDATION) {
 		int layerCount = sizeof(VALIDATION_LAYERS) / sizeof(VALIDATION_LAYERS[0]);
@@ -89,7 +98,27 @@ RayError appCreateInstance(VkInstance *instance) {
 	}
 
 	if (vkCreateInstance(&instanceInfo, NULL, instance) != VK_SUCCESS) {
+		ERROR("failed to create instance.");
 	}
 
 	return error;
+}
+
+const char **getRequiredExtensions(uint32_t *extensionCount) {
+	const char **glfwExtensions;
+	uint32_t glfwExtensionCount = 0;
+	glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+	*extensionCount = glfwExtensionCount + 1;
+	const char **requiredExtensions = malloc(sizeof(const char *) * *extensionCount);
+
+	for (uint32_t i = 0; i < *extensionCount - 1; i++) {
+		requiredExtensions[i] = glfwExtensions[i];
+	}
+
+	if (ENABLE_VALIDATION) {
+		requiredExtensions[*extensionCount - 1] = VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
+	}
+
+	return requiredExtensions;
 }

@@ -20,3 +20,4 @@ extern void appCleanup(App *app);
 
 extern GLFWwindow *appInitGlfw();
 extern RayError appCreateInstance(VkInstance *instance);
+extern const char **getRequiredExtensions(uint32_t *extensionCount);

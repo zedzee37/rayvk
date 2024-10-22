@@ -8,6 +8,11 @@
 	RayError error;  \
 	error.didError = false;
 
+#define ERROR(msg)         \
+	error.didError = true; \
+	error.errorMsg = msg;  \
+	return error
+
 typedef enum RayErrorType {
 	UNKNOWN,
 } RayErrorType;
@@ -17,5 +22,3 @@ typedef struct RayError {
 	const char *errorMsg;
 	bool didError;
 } RayError;
-
-extern void setError(RayError *error, const char *msg);
