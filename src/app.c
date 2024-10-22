@@ -101,6 +101,7 @@ RayError appCreateInstance(VkInstance *instance) {
 		ERROR("failed to create instance.");
 	}
 
+	free(extensions);
 	return error;
 }
 
