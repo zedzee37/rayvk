@@ -110,14 +110,16 @@ const char **getRequiredExtensions(uint32_t *extensionCount) {
 	uint32_t glfwExtensionCount = 0;
 	glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
-	*extensionCount = glfwExtensionCount + 1;
-	const char **requiredExtensions = malloc(sizeof(const char *) * *extensionCount);
+	*extensionCount = glfwExtensionCount;
+	const char **requiredExtensions = malloc(glfwExtensionCount * sizeof(const char *));
 
-	for (uint32_t i = 0; i < *extensionCount - 1; i++) {
+	for (uint32_t i = 0; i < *extensionCount; i++) {
 		requiredExtensions[i] = glfwExtensions[i];
 	}
 
 	if (ENABLE_VALIDATION) {
+		*extensionCount += 1;
+		requiredExtensions = realloc(requiredExtensions, *extensionCount * sizeof(const char *));
 		requiredExtensions[*extensionCount - 1] = VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
 	}
 
