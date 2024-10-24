@@ -1,3 +1,6 @@
+#ifndef OPTIONAL_H
+#define OPTIONAL_H
+
 #include <stdint.h>
 #include <stdio.h>
 
@@ -12,3 +15,5 @@
 	} type##_optional;
 
 CREATE_OPTIONAL_TYPE(uint32_t)
+
+#endif

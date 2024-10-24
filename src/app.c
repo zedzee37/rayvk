@@ -1,4 +1,6 @@
 #include "app.h"
+#include "core_types.h"
+#include "device.h"
 #include <GLFW/glfw3.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,7 +38,10 @@ RayError appInit(App *app) {
 
 	app->window = appInitGlfw();
 
-	error = appCreateInstance(&app->instance);
+	error = createInstance(&app->instance);
+	CHECK_ERROR(error);
+
+	error = createSurface(app->instance, app->window, &app->surface);
 	CHECK_ERROR(error);
 
 	return error;
@@ -69,7 +74,7 @@ GLFWwindow *appInitGlfw() {
 	return window;
 }
 
-RayError appCreateInstance(VkInstance *instance) {
+RayError createInstance(VkInstance *instance) {
 	DEFINE_ERR();
 
 	VkApplicationInfo appInfo;
@@ -102,6 +107,14 @@ RayError appCreateInstance(VkInstance *instance) {
 	}
 
 	free(extensions);
+	return error;
+}
+
+RayError createSurface(VkInstance instance, GLFWwindow *window, VkSurfaceKHR *surface) {
+	DEFINE_ERR();
+	if (glfwCreateWindowSurface(instance, window, NULL, surface) != VK_SUCCESS) {
+		ERROR("failed to create window surface.");
+	}
 	return error;
 }
 

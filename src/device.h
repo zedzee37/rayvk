@@ -1,3 +1,6 @@
+#ifndef DEVICE_H
+#define DEVICE_H
+
 #include "core_types.h"
 #include "optional.h"
 #include <vulkan/vulkan.h>
@@ -15,3 +18,5 @@ extern bool isDeviceViable(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface
 extern RayError pickPhysicalDevice(VkPhysicalDevice *physicalDevice, VkInstance instance, VkSurfaceKHR surface);
 
 extern RayError appDeviceInit();
+
+#endif
