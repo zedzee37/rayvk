@@ -7,8 +7,10 @@
 #include <vulkan/vulkan_core.h>
 
 const char *REQUIRED_EXTENSIONS[] = {
-
+	VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+	VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME
 };
+
 const char *VALIDATION_LAYERS[] = {
 	"VK_LAYER_KHRONOS_validation"
 };
@@ -42,6 +44,16 @@ RayError appInit(App *app) {
 	CHECK_ERROR(error);
 
 	error = createSurface(app->instance, app->window, &app->surface);
+	CHECK_ERROR(error);
+
+	uint32_t deviceExtensionCount = sizeof(REQUIRED_EXTENSIONS) / sizeof(const char *);
+
+	error = pickPhysicalDevice(&app->physicalDevice, app->instance, app->surface, REQUIRED_EXTENSIONS, deviceExtensionCount);
+	CHECK_ERROR(error);
+
+	uint32_t validationLayerCount = sizeof(VALIDATION_LAYERS) / sizeof(const char *);
+
+	error = createLogicalDevice(&app->device, &app->queues, app->physicalDevice, app->surface, REQUIRED_EXTENSIONS, deviceExtensionCount, VALIDATION_LAYERS, validationLayerCount, ENABLE_VALIDATION);
 	CHECK_ERROR(error);
 
 	return error;

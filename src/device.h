@@ -11,11 +11,18 @@ typedef struct QueueFamilyIndices {
 	uint32_t_optional presentFamily;
 } QueueFamilyIndices;
 
+typedef struct Queues {
+	VkQueue graphics;
+	VkQueue present;
+} Queues;
+
 extern bool queueFamilyIndicesIsComplete(QueueFamilyIndices indices);
 
 extern QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
-extern bool isDeviceViable(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface);
-extern RayError pickPhysicalDevice(VkPhysicalDevice *physicalDevice, VkInstance instance, VkSurfaceKHR surface);
+extern bool checkDeviceExtensionSupport(VkPhysicalDevice device, const char *deviceExtensions[], uint32_t deviceExtensionCount);
+extern bool isDeviceViable(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, const char *deviceExtensions[], uint32_t deviceExtensionCount);
+extern RayError pickPhysicalDevice(VkPhysicalDevice *physicalDevice, VkInstance instance, VkSurfaceKHR surface, const char *deviceExtensions[], uint32_t deviceExtensionCount);
+extern RayError createLogicalDevice(VkDevice *device, Queues *queues, VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, const char *deviceExtensions[], uint32_t deviceExtensionCount, const char *validationLayers[], uint32_t validationLayerCount, bool validationEnabled);
 
 extern RayError appDeviceInit();
 

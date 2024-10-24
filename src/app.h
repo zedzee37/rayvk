@@ -3,6 +3,7 @@
 
 #define GLFW_INCLUDE_VULKAN
 #include "core_types.h"
+#include "device.h"
 #include <GLFW/glfw3.h>
 
 #define WIDTH 800
@@ -16,6 +17,8 @@ typedef struct App {
 	VkInstance instance;
 	VkSurfaceKHR surface;
 	VkPhysicalDevice physicalDevice;
+	VkDevice device;
+	Queues queues;
 } App;
 
 extern RayError appRun();
