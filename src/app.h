@@ -12,6 +12,11 @@
 extern const char *REQUIRED_EXTENSIONS[];
 extern const char *VALIDATION_LAYERS[];
 
+typedef struct ConstantStringArray {
+	const uint32_t len;
+	const char *data[];
+} ConstantStringArray;
+
 typedef struct App {
 	GLFWwindow *window;
 	VkInstance instance;
