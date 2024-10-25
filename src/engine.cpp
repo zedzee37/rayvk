@@ -1,4 +1,5 @@
 #include "engine.hpp"
+#include "device.hpp"
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.h>
 #include <iostream>
@@ -15,7 +16,9 @@ void Engine::run() {
 void Engine::init() {
 	init_window();
 	init_instance();
+	init_validation_layers();
 	init_surface();
+	init_device();
 }
 
 void Engine::loop() {
@@ -26,6 +29,7 @@ void Engine::loop() {
 
 void Engine::cleanup() {
 	instance.destroySurfaceKHR(surface);
+	instance.destroyDebugUtilsMessengerEXT(debug_messenger, nullptr, loader);
 
 	glfwDestroyWindow(window);
 	glfwTerminate();
@@ -105,6 +109,14 @@ void Engine::init_surface() {
 	surface = temp_surface;
 }
 
+void Engine::init_device() {
+	device = Device(this);
+
+	device.pick_physical_device();
+	device.init_logical_device();
+	Queues queues = device.get_device_queues();
+}
+
 vk::DebugUtilsMessengerCreateInfoEXT Engine::get_messenger_create_info() const {
 	vk::DebugUtilsMessengerCreateInfoEXT messenger_info;
 
@@ -114,6 +126,18 @@ vk::DebugUtilsMessengerCreateInfoEXT Engine::get_messenger_create_info() const {
 			.setPfnUserCallback(Engine::debug_callback);
 
 	return messenger_info;
+}
+
+void Engine::init_validation_layers() {
+	if (!ENABLE_VALIDATION_LAYERS) {
+		return;
+	}
+
+	vk::DebugUtilsMessengerCreateInfoEXT messenger_info = get_messenger_create_info();
+
+	if (instance.createDebugUtilsMessengerEXT(&messenger_info, nullptr, &debug_messenger, loader) != vk::Result::eSuccess) {
+		throw std::runtime_error("failed to create debug messenger.");
+	}
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL Engine::debug_callback(
