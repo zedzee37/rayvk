@@ -9,28 +9,28 @@
 #include <vulkan/vulkan_handles.hpp>
 #include <vulkan/vulkan_structs.hpp>
 
+const std::vector<const char *> REQUIRED_EXTENSIONS = {
+	vk::KHRSwapchainExtensionName
+};
+const std::vector<const char *> VALIDATION_LAYERS = {
+	"VK_LAYER_KHRONOS_validation"
+};
+
+const int WIDTH = 800;
+const int HEIGHT = 600;
+
+#ifdef NDEBUG
+const bool ENABLE_VALIDATION_LAYERS = true;
+#else
+const bool ENABLE_VALIDATION_LAYERS = false;
+#endif
+
 class Engine {
 public:
 	vk::Instance instance;
 	vk::SurfaceKHR surface;
 
 	Device device;
-
-	const std::vector<const char *> REQUIRED_EXTENSIONS = {
-		vk::KHRSwapchainExtensionName
-	};
-	const std::vector<const char *> VALIDATION_LAYERS = {
-		"VK_LAYER_KHRONOS_validation"
-	};
-
-	const int WIDTH = 800;
-	const int HEIGHT = 600;
-
-#ifdef NDEBUG
-	const bool ENABLE_VALIDATION_LAYERS = true;
-#else
-	const bool ENABLE_VALIDATION_LAYERS = false;
-#endif
 
 	void run();
 
