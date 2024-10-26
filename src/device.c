@@ -1,4 +1,4 @@
-#include "device.h"
+#include "app.h"
 #include "core_types.h"
 #include <stdint.h>
 #include <stdio.h>
@@ -43,15 +43,15 @@ QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surfa
 	return indices;
 }
 
-bool checkDeviceExtensionSupport(VkPhysicalDevice device, const char *deviceExtensions[], uint32_t deviceExtensionCount) {
+bool checkDeviceExtensionSupport(VkPhysicalDevice device, const DeviceRequirements *deviceRequirements) {
 	uint32_t supportedExtensionCount;
 	vkEnumerateDeviceExtensionProperties(device, NULL, &supportedExtensionCount, NULL);
 
 	VkExtensionProperties *supportedExtensions = malloc(sizeof(VkExtensionProperties) * supportedExtensionCount);
 	vkEnumerateDeviceExtensionProperties(device, NULL, &supportedExtensionCount, supportedExtensions);
 
-	for (uint32_t i = 0; i < deviceExtensionCount; i++) {
-		const char *requiredExtension = deviceExtensions[i];
+	for (uint32_t i = 0; i < deviceRequirements->extensionCount; i++) {
+		const char *requiredExtension = deviceRequirements->extensions[i];
 
 		bool extensionSupported = false;
 		for (uint32_t j = 0; j < supportedExtensionCount; j++) {
@@ -71,15 +71,15 @@ bool checkDeviceExtensionSupport(VkPhysicalDevice device, const char *deviceExte
 	return true;
 }
 
-bool isDeviceViable(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, const char *deviceExtensions[], uint32_t deviceExtensionCount) {
-	QueueFamilyIndices indices = findQueueFamilies(physicalDevice, surface);
+bool isDeviceViable(VkPhysicalDevice physicalDevice, const DeviceRequirements *deviceRequirements) {
+	QueueFamilyIndices indices = findQueueFamilies(physicalDevice, deviceRequirements->surface);
 
-	bool extensionsSupported = checkDeviceExtensionSupport(physicalDevice, deviceExtensions, deviceExtensionCount);
+	bool extensionsSupported = checkDeviceExtensionSupport(physicalDevice, deviceRequirements);
 
 	return queueFamilyIndicesIsComplete(indices) && extensionsSupported;
 }
 
-RayError pickPhysicalDevice(VkPhysicalDevice *physicalDevice, VkInstance instance, VkSurfaceKHR surface, const char *deviceExtensions[], uint32_t deviceExtensionCount) {
+RayError pickPhysicalDevice(VkPhysicalDevice *physicalDevice, VkInstance instance, const DeviceRequirements *deviceRequirements) {
 	DEFINE_ERR();
 
 	uint32_t physicalDeviceCount;
@@ -95,7 +95,7 @@ RayError pickPhysicalDevice(VkPhysicalDevice *physicalDevice, VkInstance instanc
 	for (uint32_t i = 0; i < physicalDeviceCount; i++) {
 		VkPhysicalDevice device = physicalDevices[i];
 
-		if (isDeviceViable(device, surface, deviceExtensions, deviceExtensionCount)) {
+		if (isDeviceViable(device, deviceRequirements)) {
 			*physicalDevice = device;
 			break;
 		}
@@ -109,40 +109,8 @@ RayError pickPhysicalDevice(VkPhysicalDevice *physicalDevice, VkInstance instanc
 	return error;
 }
 
-RayError createLogicalDevice(VkDevice *device, Queues *queues, VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, const char **deviceExtensions, uint32_t deviceExtensionCount, const char **validationLayers, uint32_t validationLayerCount, bool validationEnabled) {
+RayError createLogicalDevice(VkDevice *device, Queues *queues, VkPhysicalDevice physicalDevice, const DeviceRequirements *deviceRequirements) {
 	DEFINE_ERR();
-
-	QueueFamilyIndices indices = findQueueFamilies(physicalDevice, surface);
-
-	uint32_t usedQueues[] = { indices.graphicsFamily.value, indices.presentFamily.value };
-	uint32_t queueCount = sizeof(usedQueues) / sizeof(uint32_t);
-
-	uint32_t **queueSet = malloc(queueCount * sizeof(uint32_t *));
-	uint32_t setLen = 0;
-
-	for (uint32_t i = 0; i < queueCount; i++) {
-		uint32_t hash = usedQueues[i] % queueCount;
-
-		if (queueSet[hash] == NULL) {
-			queueSet[hash] = &usedQueues[i];
-			setLen++;
-		}
-	}
-
-	VkDeviceQueueCreateInfo *queueCreateInfos = malloc(sizeof(VkDeviceQueueCreateInfo) * setLen);
-
-	float queuePriority = 1.0f;
-	for (uint32_t i = 0; i < setLen; i++) {
-		uint32_t *queue = queueSet[i];
-		VkDeviceQueueCreateInfo queueInfo;
-		queueInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-		queueInfo.queueFamilyIndex = *queue;
-		queueInfo.queueCount = 1;
-		queueInfo.pQueuePriorities = &queuePriority;
-		queueCreateInfos[i] = queueInfo;
-	}
-
-	free(queueSet);
-
+	printf("guh");
 	return error;
 }

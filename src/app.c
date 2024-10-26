@@ -1,6 +1,5 @@
 #include "app.h"
 #include "core_types.h"
-#include "device.h"
 #include <GLFW/glfw3.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -46,14 +45,7 @@ RayError appInit(App *app) {
 	error = createSurface(app->instance, app->window, &app->surface);
 	CHECK_ERROR(error);
 
-	uint32_t deviceExtensionCount = sizeof(REQUIRED_EXTENSIONS) / sizeof(const char *);
-
-	error = pickPhysicalDevice(&app->physicalDevice, app->instance, app->surface, REQUIRED_EXTENSIONS, deviceExtensionCount);
-	CHECK_ERROR(error);
-
-	uint32_t validationLayerCount = sizeof(VALIDATION_LAYERS) / sizeof(const char *);
-
-	error = createLogicalDevice(&app->device, &app->queues, app->physicalDevice, app->surface, REQUIRED_EXTENSIONS, deviceExtensionCount, VALIDATION_LAYERS, validationLayerCount, ENABLE_VALIDATION);
+	error = appInitDevice(app);
 	CHECK_ERROR(error);
 
 	return error;
@@ -84,6 +76,28 @@ GLFWwindow *appInitGlfw() {
 	GLFWwindow *window;
 	window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", NULL, NULL);
 	return window;
+}
+
+RayError appInitDevice(App *app) {
+	DEFINE_ERR();
+
+	uint32_t deviceExtensionCount = sizeof(REQUIRED_EXTENSIONS) / sizeof(const char *);
+	uint32_t validationLayerCount = sizeof(VALIDATION_LAYERS) / sizeof(const char *);
+
+	DeviceRequirements deviceRequirements;
+	deviceRequirements.extensionCount = deviceExtensionCount;
+	deviceRequirements.validationLayerCount = validationLayerCount;
+	deviceRequirements.extensions = REQUIRED_EXTENSIONS;
+	deviceRequirements.validationLayers = VALIDATION_LAYERS;
+	deviceRequirements.surface = app->surface;
+
+	error = pickPhysicalDevice(&app->physicalDevice, app->instance, &deviceRequirements);
+	CHECK_ERROR(error);
+
+	error = createLogicalDevice(&app->device, &app->queues, app->physicalDevice, &deviceRequirements);
+	CHECK_ERROR(error);
+
+	return error;
 }
 
 RayError createInstance(VkInstance *instance) {
