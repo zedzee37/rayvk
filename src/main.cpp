@@ -1,9 +1,9 @@
-#include "engine.hpp"
+#include "renderer.hpp"
 #include <exception>
 #include <iostream>
 
 int main() {
-	Engine engine;
+	Renderer engine;
 
 	try {
 		engine.run();

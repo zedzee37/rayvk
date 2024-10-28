@@ -1,8 +1,9 @@
-#ifndef ENGINE_HPP
-#define ENGINE_HPP
+#ifndef RENDERER_HPP
+#define RENDERER_HPP
+
+#include "device.hpp"
 
 #define GLFW_INCLUDE_VULKAN
-#include "device.hpp"
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_enums.hpp>
@@ -25,32 +26,38 @@ const bool ENABLE_VALIDATION_LAYERS = true;
 const bool ENABLE_VALIDATION_LAYERS = false;
 #endif
 
-class Engine {
+class Renderer {
 public:
-	vk::Instance instance;
-	vk::SurfaceKHR surface;
-
-	Device device;
-
 	void run();
 
 private:
 	GLFWwindow *window;
+	vk::Instance instance;
 	vk::DispatchLoaderDynamic loader;
-	vk::DebugUtilsMessengerEXT debug_messenger;
+	vk::DebugUtilsMessengerEXT debugMessenger;
+	vk::SurfaceKHR surface;
+
+	vk::PhysicalDevice physicalDevice;
+	vk::Device logicalDevice;
+	QueueFamilyIndices indices;
+	vk::Queue graphicsQueue;
+	vk::Queue presentQueue;
 
 	void init();
 	void loop();
 	void cleanup();
 
-	void init_window();
-	void init_instance();
-	void init_validation_layers();
-	void init_surface();
-	void init_device();
+	void initWindow();
+	void initInstance();
+	void initValidationLayers();
+	void initSurface();
 
-	vk::DebugUtilsMessengerCreateInfoEXT get_messenger_create_info() const;
-	static VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback(
+	void pickPhysicalDevice();
+	void initLogicalDevice();
+
+	vk::DebugUtilsMessengerCreateInfoEXT getMessengerCreateInfo() const;
+
+	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 			VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 			VkDebugUtilsMessageTypeFlagsEXT messageType,
 			const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
