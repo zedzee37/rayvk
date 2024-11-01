@@ -1,5 +1,6 @@
 #include "renderer.hpp"
 #include "device.hpp"
+#include "swapchain.hpp"
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.h>
 #include <iostream>
@@ -23,6 +24,7 @@ void Renderer::init() {
 	initSurface();
 	pickPhysicalDevice();
 	initLogicalDevice();
+	initSwapchain();
 }
 
 void Renderer::loop() {
@@ -177,6 +179,22 @@ void Renderer::initLogicalDevice() {
 
 	graphicsQueue = logicalDevice.getQueue(indices.graphicsFamily.value(), 0);
 	presentQueue = logicalDevice.getQueue(indices.presentFamily.value(), 0);
+}
+
+void Renderer::initSwapchain() {
+	SwapchainSupportDetails supportDetails = SwapchainSupportDetails::querySwapchainSupport(physicalDevice, surface);
+
+	vk::SurfaceFormatKHR surfaceFormat = chooseSurfaceFormat(supportDetails.formats);
+	vk::PresentModeKHR presentMode = choosePresentMode(supportDetails.presentModes);
+	vk::Extent2D extent = getExtent(supportDetails.capabilities, window);
+
+	imageFormat = surfaceFormat.format;
+	swapchainExtent = extent;
+
+	uint32_t imageCount = supportDetails.capabilities.minImageCount + 1;
+	if (supportDetails.capabilities.maxImageCount > 0 && imageCount > supportDetails.capabilities.maxImageCount) {
+		imageCount = supportDetails.capabilities.maxImageCount;
+	}
 }
 
 vk::DebugUtilsMessengerCreateInfoEXT Renderer::getMessengerCreateInfo() const {

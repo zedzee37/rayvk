@@ -1,4 +1,5 @@
 #include "device.hpp"
+#include "swapchain.hpp"
 #include <cstring>
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_handles.hpp>
@@ -52,8 +53,11 @@ bool isDeviceSuitable(vk::PhysicalDevice physicalDevice, VkSurfaceKHR surface, s
 		}
 	}
 
+	SwapchainSupportDetails swapchainDetails = SwapchainSupportDetails::querySwapchainSupport(physicalDevice, surface);
+	bool swapchainAdequate = !swapchainDetails.formats.empty() && !swapchainDetails.presentModes.empty();
+
 	QueueFamilyIndices indices = QueueFamilyIndices::findQueueFamilies(physicalDevice, surface);
 
-	return indices.isComplete();
+	return indices.isComplete() && swapchainAdequate;
 }
 }; //namespace renderer

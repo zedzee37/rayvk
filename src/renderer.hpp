@@ -44,6 +44,10 @@ private:
 	vk::Queue graphicsQueue;
 	vk::Queue presentQueue;
 
+	vk::SwapchainKHR swapchain;
+	vk::Format imageFormat;
+	vk::Extent2D swapchainExtent;
+
 	void init();
 	void loop();
 	void cleanup();
@@ -52,6 +56,7 @@ private:
 	void initInstance();
 	void initValidationLayers();
 	void initSurface();
+	void initSwapchain();
 
 	void pickPhysicalDevice();
 	void initLogicalDevice();
