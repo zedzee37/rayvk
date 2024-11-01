@@ -9,6 +9,7 @@
 #include <vulkan/vulkan_handles.hpp>
 #include <vulkan/vulkan_structs.hpp>
 
+namespace renderer {
 void Renderer::run() {
 	init();
 	loop();
@@ -210,3 +211,4 @@ VKAPI_ATTR VkBool32 VKAPI_CALL Renderer::debugCallback(
 
 	return VK_FALSE;
 }
+}; //namespace renderer

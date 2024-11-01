@@ -10,6 +10,7 @@
 #include <vulkan/vulkan_handles.hpp>
 #include <vulkan/vulkan_structs.hpp>
 
+namespace renderer {
 const std::vector<const char *> REQUIRED_EXTENSIONS = {
 	vk::KHRSwapchainExtensionName
 };
@@ -63,5 +64,6 @@ private:
 			const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
 			void *pUserData);
 };
+}; //namespace renderer
 
 #endif

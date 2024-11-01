@@ -4,6 +4,7 @@
 #include <vulkan/vulkan_handles.hpp>
 #include <vulkan/vulkan_structs.hpp>
 
+namespace renderer {
 bool QueueFamilyIndices::isComplete() const {
 	return graphicsFamily.has_value() && presentFamily.has_value();
 }
@@ -55,3 +56,4 @@ bool isDeviceSuitable(vk::PhysicalDevice physicalDevice, VkSurfaceKHR surface, s
 
 	return indices.isComplete();
 }
+}; //namespace renderer

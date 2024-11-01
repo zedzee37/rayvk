@@ -3,10 +3,10 @@
 #include <iostream>
 
 int main() {
-	Renderer engine;
+	renderer::Renderer renderer;
 
 	try {
-		engine.run();
+		renderer.run();
 	} catch (const std::exception &e) {
 		std::cout << e.what() << std::endl;
 		return -1;

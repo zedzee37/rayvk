@@ -5,6 +5,7 @@
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_handles.hpp>
 
+namespace renderer {
 struct QueueFamilyIndices {
 	std::optional<uint32_t> graphicsFamily;
 	std::optional<uint32_t> presentFamily;
@@ -14,5 +15,6 @@ struct QueueFamilyIndices {
 };
 
 bool isDeviceSuitable(vk::PhysicalDevice physicalDevice, VkSurfaceKHR surface, std::vector<const char *> extensions);
+}; //namespace renderer
 
 #endif
