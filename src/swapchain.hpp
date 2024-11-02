@@ -17,9 +17,11 @@ struct SwapchainSupportDetails {
 	static SwapchainSupportDetails querySwapchainSupport(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface);
 };
 
-extern vk::SurfaceFormatKHR chooseSurfaceFormat(const std::vector<vk::SurfaceFormatKHR> &availableFormats);
-extern vk::PresentModeKHR choosePresentMode(const std::vector<vk::PresentModeKHR> &availablePresentModes);
-extern vk::Extent2D getExtent(vk::SurfaceCapabilitiesKHR capabilities, GLFWwindow *window);
+struct Swapchain {
+	static vk::SurfaceFormatKHR chooseSurfaceFormat(const std::vector<vk::SurfaceFormatKHR> &availableFormats);
+	static vk::PresentModeKHR choosePresentMode(const std::vector<vk::PresentModeKHR> &availablePresentModes);
+	static vk::Extent2D getExtent(vk::SurfaceCapabilitiesKHR capabilities, GLFWwindow *window);
+};
 
 }; //namespace renderer
 

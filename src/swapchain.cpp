@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <cstdint>
 #include <limits>
+#include <vulkan/vulkan_enums.hpp>
 #include <vulkan/vulkan_structs.hpp>
 
 namespace renderer {
@@ -14,32 +15,32 @@ SwapchainSupportDetails SwapchainSupportDetails::querySwapchainSupport(vk::Physi
 	return supportDetails;
 }
 
-VkSurfaceFormatKHR chooseSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats) {
-	for (const VkSurfaceFormatKHR &availableFormat : availableFormats) {
-		if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+vk::SurfaceFormatKHR Swapchain::chooseSurfaceFormat(const std::vector<vk::SurfaceFormatKHR> &availableFormats) {
+	for (const vk::SurfaceFormatKHR &availableFormat : availableFormats) {
+		if (availableFormat.format == vk::Format::eB8G8R8A8Srgb && availableFormat.colorSpace == vk::ColorSpaceKHR::eVkColorspaceSrgbNonlinear) {
 			return availableFormat;
 		}
 	}
 	return availableFormats[0];
 }
 
-VkPresentModeKHR choosePresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes) {
-	for (const VkPresentModeKHR &availablePresentMode : availablePresentModes) {
-		if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
+vk::PresentModeKHR Swapchain::choosePresentMode(const std::vector<vk::PresentModeKHR> &availablePresentModes) {
+	for (const vk::PresentModeKHR &availablePresentMode : availablePresentModes) {
+		if (availablePresentMode == vk::PresentModeKHR::eMailbox) {
 			return availablePresentMode;
 		}
 	}
-	return VK_PRESENT_MODE_FIFO_KHR;
+	return vk::PresentModeKHR::eFifo;
 }
 
-VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities, GLFWwindow *window) {
+vk::Extent2D Swapchain::getExtent(vk::SurfaceCapabilitiesKHR capabilities, GLFWwindow *window) {
 	if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
 		return capabilities.currentExtent;
 	} else {
 		int width, height;
 		glfwGetFramebufferSize(window, &width, &height);
 
-		VkExtent2D actualExtent = {
+		vk::Extent2D actualExtent = {
 			static_cast<uint32_t>(width),
 			static_cast<uint32_t>(height)
 		};
@@ -50,5 +51,4 @@ VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities, GLFWwi
 		return actualExtent;
 	}
 }
-
 }; //namespace renderer

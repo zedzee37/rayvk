@@ -1,11 +1,14 @@
 #include "renderer.hpp"
 #include "device.hpp"
+#include "image.hpp"
 #include "swapchain.hpp"
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.h>
+#include <vulkan/vulkan_core.h>
 #include <iostream>
 #include <set>
 #include <stdexcept>
+#include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_enums.hpp>
 #include <vulkan/vulkan_handles.hpp>
 #include <vulkan/vulkan_structs.hpp>
@@ -25,6 +28,7 @@ void Renderer::init() {
 	pickPhysicalDevice();
 	initLogicalDevice();
 	initSwapchain();
+	createImageViews();
 }
 
 void Renderer::loop() {
@@ -184,9 +188,9 @@ void Renderer::initLogicalDevice() {
 void Renderer::initSwapchain() {
 	SwapchainSupportDetails supportDetails = SwapchainSupportDetails::querySwapchainSupport(physicalDevice, surface);
 
-	vk::SurfaceFormatKHR surfaceFormat = chooseSurfaceFormat(supportDetails.formats);
-	vk::PresentModeKHR presentMode = choosePresentMode(supportDetails.presentModes);
-	vk::Extent2D extent = getExtent(supportDetails.capabilities, window);
+	vk::SurfaceFormatKHR surfaceFormat = Swapchain::chooseSurfaceFormat(supportDetails.formats);
+	vk::PresentModeKHR presentMode = Swapchain::choosePresentMode(supportDetails.presentModes);
+	vk::Extent2D extent = Swapchain::getExtent(supportDetails.capabilities, window);
 
 	imageFormat = surfaceFormat.format;
 	swapchainExtent = extent;
@@ -194,6 +198,43 @@ void Renderer::initSwapchain() {
 	uint32_t imageCount = supportDetails.capabilities.minImageCount + 1;
 	if (supportDetails.capabilities.maxImageCount > 0 && imageCount > supportDetails.capabilities.maxImageCount) {
 		imageCount = supportDetails.capabilities.maxImageCount;
+	}
+
+	vk::SwapchainCreateInfoKHR swapchainInfo{};
+	swapchainInfo
+			.setSurface(surface)
+			.setMinImageCount(imageCount)
+			.setImageFormat(imageFormat)
+			.setImageColorSpace(surfaceFormat.colorSpace)
+			.setImageExtent(swapchainExtent)
+			.setImageArrayLayers(1)
+			.setImageUsage(vk::ImageUsageFlagBits::eColorAttachment);
+
+	uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
+
+	if (indices.graphicsFamily != indices.presentFamily) {
+		swapchainInfo
+				.setImageSharingMode(vk::SharingMode::eConcurrent)
+				.setQueueFamilyIndexCount(2)
+				.setQueueFamilyIndices(queueFamilyIndices);
+	} else {
+		swapchainInfo
+				.setImageSharingMode(vk::SharingMode::eExclusive);
+	}
+
+	swapchainInfo
+			.setPreTransform(supportDetails.capabilities.currentTransform)
+			.setCompositeAlpha(vk::CompositeAlphaFlagBitsKHR::eOpaque)
+			.setPresentMode(presentMode)
+			.setClipped(vk::True);
+
+	swapchain = logicalDevice.createSwapchainKHR(swapchainInfo);
+	swapchainImages = logicalDevice.getSwapchainImagesKHR(swapchain);
+}
+
+void Renderer::createImageViews() {
+	for (size_t i = 0; i < swapchainImages.size(); i++) {
+		swapchainImageViews[i] = Image::createImageView(logicalDevice, swapchainImages[i], imageFormat, vk::ImageAspectFlagBits::eColor);
 	}
 }
 

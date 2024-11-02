@@ -2,6 +2,7 @@
 #define RENDERER_HPP
 
 #include "device.hpp"
+#include <vector>
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -47,6 +48,8 @@ private:
 	vk::SwapchainKHR swapchain;
 	vk::Format imageFormat;
 	vk::Extent2D swapchainExtent;
+	std::vector<vk::Image> swapchainImages;
+	std::vector<vk::ImageView> swapchainImageViews;
 
 	void init();
 	void loop();
@@ -56,10 +59,10 @@ private:
 	void initInstance();
 	void initValidationLayers();
 	void initSurface();
-	void initSwapchain();
-
 	void pickPhysicalDevice();
 	void initLogicalDevice();
+	void initSwapchain();
+	void createImageViews();
 
 	vk::DebugUtilsMessengerCreateInfoEXT getMessengerCreateInfo() const;
 
