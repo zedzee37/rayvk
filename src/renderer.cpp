@@ -28,7 +28,7 @@ void Renderer::init() {
 	pickPhysicalDevice();
 	initLogicalDevice();
 	initSwapchain();
-	// createImageViews();
+	createImageViews();
 }
 
 void Renderer::loop() {
@@ -234,7 +234,7 @@ void Renderer::initSwapchain() {
 
 void Renderer::createImageViews() {
 	for (size_t i = 0; i < swapchainImages.size(); i++) {
-		swapchainImageViews[i] = Image::createImageView(logicalDevice, swapchainImages[i], imageFormat, vk::ImageAspectFlagBits::eColor);
+		swapchainImageViews.push_back(Image::createImageView(logicalDevice, swapchainImages[i], imageFormat, vk::ImageAspectFlagBits::eColor));
 	}
 }
 
