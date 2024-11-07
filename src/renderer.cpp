@@ -28,7 +28,7 @@ void Renderer::init() {
 	pickPhysicalDevice();
 	initLogicalDevice();
 	initSwapchain();
-	createImageViews();
+	// createImageViews();
 }
 
 void Renderer::loop() {
