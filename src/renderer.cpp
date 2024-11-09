@@ -29,6 +29,7 @@ void Renderer::init() {
 	initLogicalDevice();
 	initSwapchain();
 	createImageViews();
+	createRenderPass();
 }
 
 void Renderer::loop() {
@@ -236,6 +237,10 @@ void Renderer::createImageViews() {
 	for (size_t i = 0; i < swapchainImages.size(); i++) {
 		swapchainImageViews.push_back(Image::createImageView(logicalDevice, swapchainImages[i], imageFormat, vk::ImageAspectFlagBits::eColor));
 	}
+}
+
+void Renderer::createRenderPass() {
+	vk::AttachmentDescription colorAttachment{};
 }
 
 vk::DebugUtilsMessengerCreateInfoEXT Renderer::getMessengerCreateInfo() const {

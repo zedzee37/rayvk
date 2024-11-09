@@ -51,6 +51,8 @@ private:
 	std::vector<vk::Image> swapchainImages;
 	std::vector<vk::ImageView> swapchainImageViews;
 
+	vk::RenderPass renderPass;
+
 	void init();
 	void loop();
 	void cleanup();
@@ -63,6 +65,7 @@ private:
 	void initLogicalDevice();
 	void initSwapchain();
 	void createImageViews();
+	void createRenderPass();
 
 	vk::DebugUtilsMessengerCreateInfoEXT getMessengerCreateInfo() const;
 
